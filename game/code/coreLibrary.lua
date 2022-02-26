@@ -8,8 +8,11 @@
 --- global game tables
 core = {
     sfxVolume = 1,
-    musicVolume = 0.5
+    musicVolume = 0.5,
+
+    fontSize = 16,
 }
+c = core
 
 --- love2d constants
 lfs = love.filesystem
@@ -31,7 +34,8 @@ core.keyMaps = {
 
 core.img = {}
 core.imagePointers = {
-
+    emptySlot = "emptySlot.png",
+    basicMino = "basicMino.png"
 }
 
 core.snd = {}
@@ -150,3 +154,16 @@ function core.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of l
 
 end
 
+function core.loadSkin(skinName) -- loads a skin into memory
+    for name, imagePath in pairs(core.imagePointers) do
+        core.img[name] = lg.newImage("assets/skins/" .. skinName .. "/" .. imagePath)
+    end
+
+    for name, audioPath in pairs(core.soundPointers) do
+        core.snd[name] = love.audio.newSource("assets/skins/" .. skinName .. "/sfx/" .. audioPath, "static")
+    end
+
+    if lfs.getInfo("/assets/skins/"..skinName.."/font.ttf") then
+        lg.setFont(lg.newFont("/assets/skins/"..skinName.."/font.ttf", core.fontSize))
+    end
+end

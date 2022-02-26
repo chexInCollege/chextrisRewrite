@@ -1,5 +1,19 @@
 tData = {}
 
+tData.defaultControls = {
+    a = "left",
+    d = "right",
+    w = "hardDrop",
+    s = "softDrop",
+
+    left = "rotateCCW",
+    right = "rotateCW",
+    up = "rotate180",
+
+    lshift = "hold",
+
+}
+
 tData.pieces = {
     [1] = { --I
         {0,0,0,0},

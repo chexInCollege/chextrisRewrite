@@ -115,6 +115,16 @@ function core.clamp(number, numberMin, numberMax)
     return number
 end
 
+function core.reverseLookup(tab, val)
+    for key, item in pairs(tab) do
+        if item == val then
+            return key
+        end
+    end
+    return false
+end
+
+
 function core.draw( drawable, x, y, r, sx, sy, ox, oy, kx, ky ) -- in place of love.graphics.draw()
 
     if type(drawable) == "string" then -- use lg.print to draw if string

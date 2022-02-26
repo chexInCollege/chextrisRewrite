@@ -1,0 +1,3 @@
+flags = {
+    canvasBorders = true
+}

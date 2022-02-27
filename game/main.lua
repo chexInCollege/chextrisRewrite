@@ -14,26 +14,19 @@ function love.load()
     -- b1.newPiece()
     -- b2.newPiece()
 
-    --[[for x = 1, 10 do
-        for y = 1, 6 do
-            local b = board.create({pos={x=x*120,y=y*150}, controller="keyboard", scale = 0.3, seed = y*x, gravity = 1/x*y})
-            b.newPiece()
-        end
-    end]]
-
-    --[[myBoard = board.create({
+    myBoard = board.create({
         pos = {x = 400,y = 355},
         control = controller.inputs.keyboard,
         scale = 1.15,
         -- seed = 1,
-        gravity = 1/5,
-        controls = tData.defaultControls
+        gravity = 1/2,
+        controls = tData.defaultControls,
+        handling = tData.defaultHanding
     })
-    myBoard.newPiece()]]
+    myBoard.newPiece()--]]
 
 
-
-    for x = 1, 10 do
+--[[for x = 1, 10 do
         for y = 1, 10 do
         local myBoard2 = board.create({
             pos={x = x * 70,y = y * 80},
@@ -45,7 +38,7 @@ function love.load()
         })
         myBoard2.newPiece()
         end
-    end
+    end--]]
 end
 
 function love.draw()
@@ -64,3 +57,11 @@ function love.keyreleased(input)
     controller.inputs.keyboard.released(input)
 end
 
+function love.joystickadded(joystick)
+    core.kbInput = controller.create("GP-" .. joystick:getName())
+end
+
+
+function love.joystickremoved(joystick)
+    controller.inputs["GP-" .. joystick:getName()].release()
+end

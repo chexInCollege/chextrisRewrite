@@ -34,10 +34,14 @@ function board.create(attributes)
         seed = math.random(9999999999),
         tetromino = c.img.basicMino,
         activePiece = false,
+        heldPiece = false,
+        justHeld = false,
         gravity = 1/2,
         nextQueue = {},
         nextLength = 5,
         controls = tData.defaultControls,
+        handling = tData.defaultHandling,
+        backPieceColor = {155/255, 79/255, 255/255}
     }
 
 
@@ -79,14 +83,16 @@ function board.create(attributes)
         return newBoard.activePiece
     end
 
-    function newBoard.lockPiece(id)
-        for y, row in ipairs(newBoard.activePiece.matrix) do
-            for x, value in ipairs(row) do
-                if value ~= 0 then
-                    local matrixX = (newBoard.activePiece.pos.x + (x-1))
-                    local matrixY = (newBoard.activePiece.pos.y - (y-1))
+    function newBoard.lockPiece(id, keep)
+        if keep ~= false then
+            for y, row in ipairs(newBoard.activePiece.matrix) do
+                for x, value in ipairs(row) do
+                    if value ~= 0 then
+                        local matrixX = (newBoard.activePiece.pos.x + (x-1))
+                        local matrixY = (newBoard.activePiece.pos.y - (y-1))
 
-                    newBoard.grid[matrixY][matrixX] = newBoard.activePiece.matrix[y][x]
+                        newBoard.grid[matrixY][matrixX] = newBoard.activePiece.matrix[y][x]
+                    end
                 end
             end
         end
@@ -95,7 +101,7 @@ function board.create(attributes)
             newBoard.nextQueue = core.cleanTable(newBoard.nextQueue)
             newBoard.generateNext()
         end
-        newBoard.newPiece(id)
+        return newBoard.newPiece(id)
     end
 
     function newBoard.update(dt)
@@ -145,6 +151,19 @@ function board.create(attributes)
                 end
 
             end
+        end
+
+        -- held piece lol!
+        if newBoard.heldPiece then
+            newBoard.heldPiece.draw()
+            lg.push()
+            lg.setColor(1,1,1)
+            core.draw(newBoard.heldPiece.canvas,
+                    50, 50, 0,
+                    nil, nil,
+                    "center", "center"
+            )
+            lg.pop()
         end
 
         -- next queue lol!

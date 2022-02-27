@@ -14,6 +14,12 @@ tData.defaultControls = {
 
 }
 
+tData.defaultHandling = {
+    sdr = 20,
+    das = 0.15,
+    arr = 1/20
+}
+
 tData.pieces = {
     [1] = { --I
         {0,0,0,0},
@@ -135,26 +141,25 @@ tData.pieceColors = {
 }
 
 tData.wallKickDefault = {
-    {{0,0},{-1,0},{-1,1},{0,-2},{-1,-2}}, -- 0>1
-    {{0,0},{1,0},{1,-1},{0,2},{1,2}}, -- 1>0
-    {{0,0},{1,0},{1,-1},{0,2},{1,2}}, -- 1>2
-    {{0,0},{-1,0},{-1,1},{0,-2},{-1,-2}}, -- 2>1
-    {{0,0},{1,0},{1,1},{0,-2},{1,-2}}, -- 2>3
-    {{0,0},{-1,0},{-1,-1},{0,2},{-1,2}}, -- 3>2
-    {{0,0},{-1,0},{-1,-1},{0,2},{-1,2}}, -- 3>0
-    {{0,0},{1,0},{1,1},{0,-2},{1,-2}}  -- 0>3
+    {{0,0},{-1,0},{-1,1},{0,-2},{-1,-2}}, -- 0>1 (cw)
+    {{0,0},{1,0},{1,1},{0,-2},{1,-2}},  -- 0>3 (ccw)
+    {{0,0},{1,0},{1,-1},{0,2},{1,2}}, -- 1>2 (cw)
+    {{0,0},{1,0},{1,-1},{0,2},{1,2}}, -- 1>0 (ccw)
+    {{0,0},{1,0},{1,1},{0,-2},{1,-2}}, -- 2>3 (cw)
+    {{0,0},{-1,0},{-1,1},{0,-2},{-1,-2}}, -- 2>1 (ccw)
+    {{0,0},{-1,0},{-1,-1},{0,2},{-1,2}}, -- 3>0 (cw)
+    {{0,0},{-1,0},{-1,-1},{0,2},{-1,2}}, -- 3>2 (ccw)
 }
 
 tData.wallKickI = {
     {{0,0},{-2,0},{1,0},{-2,-1},{1,2}}, -- 0>1
-    {{0,0},{2,0},{-1,0},{2,1},{-1,-2}}, -- 1>0
-    {{0,0},{-1,0},{2,0},{-1,2},{2,-1}}, -- 1>2
-    {{0,0},{1,0},{-2,0},{1,-2},{-2,1}}, -- 2>1
-    {{0,0},{2,0},{-1,0},{2,1},{-1,-2}}, -- 2>3
-    {{0,0},{-2,0},{1,0},{-2,-1},{1,2}}, -- 3>2
-    {{0,0},{1,0},{-2,0},{1,-2},{-2,1}}, -- 3>0
     {{0,0},{-1,0},{2,0},{-1,2},{2,-1}}, -- 0>3
-
+    {{0,0},{-1,0},{2,0},{-1,2},{2,-1}}, -- 1>2
+    {{0,0},{2,0},{-1,0},{2,1},{-1,-2}}, -- 1>0
+    {{0,0},{2,0},{-1,0},{2,1},{-1,-2}}, -- 2>3
+    {{0,0},{1,0},{-2,0},{1,-2},{-2,1}}, -- 2>1
+    {{0,0},{1,0},{-2,0},{1,-2},{-2,1}}, -- 3>0
+    {{0,0},{-2,0},{1,0},{-2,-1},{1,2}}, -- 3>2
 }
 
 tData.wallKickO = { --fuck it lol
@@ -167,6 +172,58 @@ tData.wallKickO = { --fuck it lol
     {{0,0}},
     {{0,0}}
 }
+
+tData.wallKickRef = {
+    tData.wallKickI,
+    tData.wallKickDefault,
+    tData.wallKickDefault,
+    tData.wallKickDefault,
+    tData.wallKickDefault,
+    tData.wallKickDefault,
+    tData.wallKickO
+}
+
+
+
+--- rotates a 2d table 90 degrees, for piece rotation. (too lazy to write myself - credit to woot3 on roblox)
+function tData.col(t)
+    local i, h = 0, #t
+    return function ()
+    i = i + 1
+    local column = {}
+    for j = 1, h do
+        local val = t[j][i]
+            if not val then return end
+            column[j] = val
+            end
+        return i, column
+    end
+end
+
+function tData.rev(t)
+    local n = #t
+    for i = 1, math.floor(n / 2) do
+        local j = n - i + 1
+        t[i], t[j] = t[j], t[i]
+    end
+    return t
+end
+
+function tData.rotateCW(t)
+    local t2 = {}
+    for i, column in tData.col(t) do
+        t2[i] = tData.rev(column)
+    end
+    return t2
+end
+
+function tData.rotateCCW(t)
+    local t2 = {}
+    for i, column in tData.col(t) do
+         t2[i] = column
+    end
+    return tData.rev(t2)
+end
 
 function tData.newBag(iterations)
     iterations = iterations and iterations or 1

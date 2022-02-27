@@ -3,6 +3,11 @@ controller = {
     inputs = {}
 }
 
+--- Naming conventions:
+--- "keyboard": standard keyboard object
+--- "GP-" prefix: gamepad object
+--- "B-" prefix: bot player
+
 function controller.create(name, attributes)
     local newController = {
         input = name,
@@ -57,3 +62,4 @@ function controller.create(name, attributes)
 end
 
 core.kbInput = controller.create("keyboard")
+

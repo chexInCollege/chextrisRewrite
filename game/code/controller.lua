@@ -19,6 +19,12 @@ function controller.create(name, attributes)
         end
     end
 
+    function newController.release()
+
+    end
+
+
+
     function newController.pressed(input)
         for _, board in pairs(board.members) do
             if board.controller == name then
@@ -30,6 +36,8 @@ function controller.create(name, attributes)
             end
         end
     end
+
+
 
     function newController.released(input)
         for _, board in pairs(board.members) do

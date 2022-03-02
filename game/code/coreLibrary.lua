@@ -20,15 +20,12 @@ le = love.event
 -- determine the window size
 core.sWidth, core.sHeight = lg.getDimensions()
 
-core.keyMaps = {
-    left = "leftR", -- example
-    --- key mappings
-}
 
 core.img = {}
 core.imagePointers = {
     emptySlot = "emptySlot.png",
-    basicMino = "basicMino.png"
+    basicMino = "basicMino.png",
+    ghostPiece = "ghostPiece.png",
 }
 
 core.snd = {}

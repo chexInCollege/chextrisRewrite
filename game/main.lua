@@ -46,7 +46,13 @@ function love.draw()
 end
 
 function love.update(dt)
+    core.sWidth, core.sHeight = lg.getDimensions()
+
     board.update(dt)
+
+    --- temp stuff for testing
+    myBoard.scale = core.sHeight/board.canvasSize.y
+    myBoard.pos = {x = core.sWidth/2, y = core.sHeight/2}
 end
 
 function love.keypressed(input)
@@ -59,9 +65,14 @@ end
 
 function love.joystickadded(joystick)
     core.kbInput = controller.create("GP-" .. joystick:getName())
+    print(joystick:getName())
 end
 
 
 function love.joystickremoved(joystick)
     controller.inputs["GP-" .. joystick:getName()].release()
+end
+
+function love.gamepadpressed(joystick, button)
+    print(joystick:getName(), button)
 end

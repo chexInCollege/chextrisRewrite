@@ -34,6 +34,7 @@ function board.create(attributes)
         seed = math.random(9999999999),
         tetromino = c.img.basicMino,
         activePiece = false,
+        ghostPiece = false,
         heldPiece = false,
         justHeld = false,
         gravity = 1/2,
@@ -41,7 +42,8 @@ function board.create(attributes)
         nextLength = 5,
         controls = tData.defaultControls,
         handling = tData.defaultHandling,
-        backPieceColor = {155/255, 79/255, 255/255}
+        backPieceColor = {155/255, 79/255, 255/255},
+        clock = 0,
     }
 
 
@@ -79,8 +81,36 @@ function board.create(attributes)
 
 
         newBoard.activePiece = piece.create(id, newBoard)
+        newBoard.ghostPiece = piece.create(id, newBoard, {ghost=true})
+
+        newBoard.checkForLines()
 
         return newBoard.activePiece
+    end
+
+    function newBoard.checkForLines()
+        local marks = {}
+        for y, row in pairs(newBoard.grid) do
+            y = y - #marks
+            local req = 0 -- counts to width of the board
+            for x, value in pairs(row) do
+                req = req + (value ~= 0 and 1 or 0)
+            end
+            if req >= #row then
+                print("something awful")
+                table.insert(marks, y)
+            end
+        end
+
+        print(#marks)
+        for _, key in pairs(marks) do
+            table.remove(newBoard.grid, key)
+        end
+        while #newBoard.grid < 20 do
+            table.insert(newBoard.grid, {0,0,0,0,0,0,0,0,0,0})
+        end
+
+        newBoard.grid = core.cleanTable(newBoard.grid)
     end
 
     function newBoard.lockPiece(id, keep)
@@ -101,12 +131,24 @@ function board.create(attributes)
             newBoard.nextQueue = core.cleanTable(newBoard.nextQueue)
             newBoard.generateNext()
         end
+
         return newBoard.newPiece(id)
     end
 
     function newBoard.update(dt)
+        newBoard.clock = newBoard.clock + dt
+
         if newBoard.activePiece then
             newBoard.activePiece.update(dt)
+        end
+
+        if newBoard.ghostPiece then
+            newBoard.ghostPiece.pos = core.clone(newBoard.activePiece.pos)
+            newBoard.ghostPiece.matrix = newBoard.activePiece.matrix
+            local success
+            repeat
+                success = newBoard.ghostPiece.move(0,-1)
+            until success == false
         end
     end
 
@@ -186,6 +228,20 @@ function board.create(attributes)
                     nil, nil,
                     "left", "top"
                     )
+            lg.pop()
+        end
+
+        -- ghost piece lol!
+        if newBoard.ghostPiece then
+            newBoard.ghostPiece.draw(c.img.ghostPiece, true)
+            lg.push()
+            lg.setColor(1,1,1,1)
+            core.draw(newBoard.ghostPiece.canvas,
+                    75 + newBoard.ghostPiece.pos.x * 20,
+                    450 - newBoard.ghostPiece.pos.y * 20, 0,
+                    nil, nil,
+                    "left", "top"
+            )
             lg.pop()
         end
 

@@ -46,13 +46,23 @@ function piece.create(id, cBoard, attributes)
             end
 
             if input == "hold" and not newPiece.parent.justHeld then
+                local current_arr = newPiece.arrProg
+                local current_das = newPiece.dasProg
+
+                local nextPiece
                 if newPiece.parent.heldPiece then
-                    newPiece.parent.activePiece = newPiece.parent.heldPiece
+                    nextPiece = newPiece.parent.newPiece(newPiece.parent.heldPiece.id)
                 else
-                    newPiece.release(false)
+                    nextPiece = newPiece.release(false)
                 end
+
+                nextPiece.arrProg = current_arr
+                nextPiece.dasProg = current_das
+
                 newPiece.parent.heldPiece = piece.create(newPiece.id, newPiece.parent)
                 newPiece.parent.justHeld = true
+
+
             end
 
             if input == "left" or input == "right" then
@@ -162,6 +172,7 @@ function piece.create(id, cBoard, attributes)
             nextPiece.dasProg = newPiece.dasProg
             nextPiece.arrProg = newPiece.arrProg -- inherit velocity on next piece
             newPiece.parent.justHeld = false
+            return nextPiece
         end
 
         function newPiece.update(dt)
@@ -209,7 +220,8 @@ function piece.create(id, cBoard, attributes)
         end
     end
 
-    function newPiece.draw()
+    function newPiece.draw(texture, transparent)
+        texture = texture and texture or newPiece.tetromino
         local oldCanvas = lg.getCanvas()
         love.graphics.setCanvas(newPiece.canvas)
         love.graphics.clear()
@@ -217,15 +229,17 @@ function piece.create(id, cBoard, attributes)
         for y, row in pairs(newPiece.matrix) do
             for x, val in pairs(row) do
                 if val > 0 then
-                    lg.push()
-                    lg.setColor(1,1,1)
-                    lg.rectangle("fill", (x-1) * 20, (y-1) * 20, 20, 20)
-                    lg.pop()
+                    if not transparent then
+                        lg.push()
+                        lg.setColor(1,1,1)
+                        lg.rectangle("fill", (x-1) * 20, (y-1) * 20, 20, 20)
+                        lg.pop()
+                    end
 
                     lg.push()
                     lg.setColor(newPiece.color[1],newPiece.color[2],newPiece.color[3])
                     core.draw(
-                            newPiece.tetromino,
+                            texture,
                             (x-1) * 20, (y-1) * 20,
                             0,
                             20, 20,

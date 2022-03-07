@@ -15,9 +15,9 @@ tData.defaultControls = {
 }
 
 tData.defaultHandling = {
-    sdr = 20,
+    sdr = 1000,
     das = 0.15,
-    arr = 1/20
+    arr = 1/1000
 }
 
 tData.pieces = {

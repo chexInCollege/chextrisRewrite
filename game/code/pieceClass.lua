@@ -4,6 +4,7 @@ piece = {
 
 function piece.create(id, cBoard, attributes)
     local newPiece = {
+        objectType = "Tetromino",
         matrix = tData.pieces[id],
         id = id,
         pos = {x=4, y=20},
@@ -18,6 +19,8 @@ function piece.create(id, cBoard, attributes)
         direction = "none",
         arrProg = 0,
         rotation = 0,
+        lockProgress = 0,
+        resetRotations = 15
     }
 
     if attributes then
@@ -28,7 +31,6 @@ function piece.create(id, cBoard, attributes)
 
     if cBoard then
         function newPiece.fireInput(input)
-            --print(input)
 
             if input == "rotateCW" then
                 newPiece.rotate("CW")
@@ -143,6 +145,9 @@ function piece.create(id, cBoard, attributes)
                     newPiece.rotation = newPiece.rotation + 2
                 end
                 newPiece.rotation = newPiece.rotation % 4 -- lock rotation to [0, 3]
+            elseif newPiece.lockProgress > 0 and newPiece.resetRotations > 0 then
+                newPiece.resetRotations = newPiece.resetRotations - 1
+                newPiece.lockProgress = 0
             end
 
             return success
@@ -179,14 +184,14 @@ function piece.create(id, cBoard, attributes)
             -- affect gravity
             newPiece.gravityProg = newPiece.gravityProg + dt
 
-            if newPiece.gravityProg < newPiece.gravity/20*19 and newPiece.checkInput("softDrop") then
-                newPiece.gravityProg = newPiece.gravity/20*19
+            if newPiece.gravityProg < newPiece.gravity/(newPiece.parent.handling.sdr)*(newPiece.parent.handling.sdr-1) and newPiece.checkInput("softDrop") then
+                newPiece.gravityProg = newPiece.gravity/(newPiece.parent.handling.sdr)*(newPiece.parent.handling.sdr-1)
             end
 
             if newPiece.gravityProg >= newPiece.gravity then
                 local success
                 repeat
-                    newPiece.gravityProg = newPiece.gravityProg - newPiece.gravity * (newPiece.checkInput("softDrop") and 1/20 or 1)
+                    newPiece.gravityProg = newPiece.gravityProg - newPiece.gravity * (newPiece.checkInput("softDrop") and 1/newPiece.parent.handling.sdr or 1)
                     success = newPiece.move(0,-1)
                 until newPiece.gravityProg < newPiece.gravity
                 if not success then
@@ -194,7 +199,13 @@ function piece.create(id, cBoard, attributes)
                 end
             end
 
+            if newPiece.lockProgress >= newPiece.parent.lockTime and newPiece == newPiece.parent.activePiece then
+                newPiece.release()
+            end
 
+            if newPiece.parent.ghostPiece and newPiece.pos.y == newPiece.parent.ghostPiece.pos.y then
+                newPiece.lockProgress = newPiece.lockProgress + dt
+            end
 
 
             if newPiece.checkInput("left") or newPiece.checkInput("right") then
@@ -213,9 +224,13 @@ function piece.create(id, cBoard, attributes)
             end
 
             if newPiece.arrProg >= newPiece.parent.handling.arr then
-                newPiece.arrProg = newPiece.arrProg - newPiece.parent.handling.arr
                 local delta = newPiece.direction == "right" and 1 or -1
-                newPiece.move(delta,0)
+                local success
+                repeat
+                    newPiece.arrProg = newPiece.arrProg - newPiece.parent.handling.arr
+                    success = newPiece.move(delta,0)
+                until not success or newPiece.arrProg < newPiece.parent.handling.arr
+                if not success then newPiece.arrProg = 0 end
             end
         end
     end

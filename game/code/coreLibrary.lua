@@ -33,6 +33,93 @@ core.soundPointers = {
 
 }
 
+--[[
+    natt = {
+        spacing = true, - Spaces out the bounds of tables  more.
+        newlines,       - Whether to include newlines in table output. Default varies between table type
+        keys,           - Whether to include the keys in table output. Default varies between table type
+        deep = false,   - Whether or not to stop at complex objects or to cut into them.
+    }
+]]
+function core.tostring(input, natt, nest)
+    nest = nest and nest or 0
+
+    local attributes = {
+        spacing = true,
+        keys = "none",
+        deep = false
+    }
+
+    if natt then
+        for k, v in pairs(natt) do
+            attributes[k] = v
+        end
+    end
+
+    local output = ""
+
+    local nestIndent = ""
+    for i = 0, nest do
+        nestIndent = nestIndent .. "  "
+    end
+    nestIndent = attributes.newlines and nestIndent or ""
+
+    if type(input) == "table" then
+        output = output .. (attributes.spacing and "{ " or "{") .. (attributes.newlines and "\n" .. nestIndent or "")
+
+        if input.objectType and not attributes.deep and nest > 0 then
+            return input.objectType .. " object"
+        end
+
+        if core.isArray(input) and attributes.newlines ~= true then
+            attributes.keys = attributes.keys == "none" and false or attributes.keys
+            for i, v in ipairs(input) do
+                output = output .. (attributes.keys == true and tostring(i)..": " or "") .. core.tostring(v, attributes, nest+1) .. (i ~= #input and ", " or "")
+            end
+        else
+            attributes.keys = attributes.keys == "none" and true or attributes.keys
+            attributes.newlines = attributes.newlines == false and attributes.newlines or true
+            for k, v in pairs(input) do
+                output = output .. (attributes.keys and tostring(k) .. ": " or "") .. core.tostring(v, attributes, nest+1) .. ", \n" .. nestIndent
+            end
+        end
+
+        output = string.sub(output, 1, #output - #nestIndent ) .. string.sub(nestIndent, 1, #nestIndent - 2) .. (attributes.spacing and " }" or "}")
+
+        return output
+    else
+        output = tostring(input)
+    end
+
+    return output
+end
+
+function core.strToTable(str)
+    local output = {}
+    for i = 1, #str do
+        table.insert(output, str:sub(i,i))
+    end
+    return output
+end
+
+
+function core.alphabetize(allText)
+    table.sort(allText, function(a, b) return a:upper() < b:upper() end)
+    return allText
+end
+
+
+function core.isArray(tab)
+    local cnt = 0
+    for _, _ in pairs(tab) do
+        cnt = cnt + 1
+    end
+
+    return #tab == cnt
+end
+
+
+
 function core.clone( Table, Cache ) -- Makes a deep copy of a table.
     if type( Table ) ~= 'table' then
         return Table
@@ -167,3 +254,5 @@ function core.loadSkin(skinName) -- loads a skin into memory
         lg.setFont(lg.newFont("/assets/skins/"..skinName.."/font.ttf", core.fontSize))
     end
 end
+
+core.alphabetize({"abc", "dshghrj", "ahwyghe", "rghueidrkusghj", "agyfe"})

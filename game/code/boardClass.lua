@@ -24,8 +24,11 @@ function board.create(attributes)
     math.randomseed(os.time())
     attributes = attributes and attributes or {}
     local newBoard = {
+        objectType = "Board",
         pos = {x = 0, y = 0},
+        lockTime = 1,
         playerName = "Guest",
+        stats = {},
         canvas = love.graphics.newCanvas(board.canvasSize.x, board.canvasSize.y),
         id = #board.members+1,
         grid = board.generateGrid(),
@@ -66,6 +69,10 @@ function board.create(attributes)
     end
     newBoard.generateNext() -- generates initial next queue
 
+    function newBoard.debug(vals)
+        newBoard.stats = vals
+    end
+
     function newBoard.destroy()
         board.members[newBoard.id] = nil
         newBoard = nil
@@ -97,12 +104,10 @@ function board.create(attributes)
                 req = req + (value ~= 0 and 1 or 0)
             end
             if req >= #row then
-                print("something awful")
                 table.insert(marks, y)
             end
         end
 
-        print(#marks)
         for _, key in pairs(marks) do
             table.remove(newBoard.grid, key)
         end
@@ -249,10 +254,35 @@ function board.create(attributes)
             love.graphics.rectangle("line", 0, 0, 400, 500)
         end
 
+        local cnt = 0
+        for _, _ in pairs(newBoard.stats) do
+            cnt = cnt + 1
+        end
+
+        if cnt > 0 then
+            local out = ""
+            for k, v in pairs(newBoard.stats) do
+                out = out .. core.tostring(k) .. ": " .. core.tostring(v) .. "\n"
+            end
+
+            lg.push()
+            lg.setColor(0,0,0,0.5)
+            lg.rectangle("fill", 0, 0, board.canvasSize.x, board.canvasSize.y/3)
+            lg.pop()
+            lg.push()
+            lg.setColor(1,1,1)
+            lg.print(out)
+            lg.pop()
+        end
+
+
         love.graphics.setCanvas()
     end
 
     table.insert(board.members, newBoard.id, newBoard)
+
+
+
 
     return newBoard
 end
@@ -272,3 +302,4 @@ function board.update(dt)
         cBoard.update(dt)
     end
 end
+

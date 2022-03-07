@@ -15,17 +15,30 @@ function love.load()
     -- b2.newPiece()
 
     myBoard = board.create({
+        pos = {x = 1000,y = 755},
+        control = controller.inputs.keyboard,
+        scale = 1,
+        -- seed = 1,
+        gravity = 1/2,
+        controls = tData.defaultControls,
+        handling = tData.defaultHanding,
+
+    })
+
+    myBoard.newPiece()--]]
+
+    myBoard = board.create({
         pos = {x = 400,y = 355},
         control = controller.inputs.keyboard,
         scale = 1.15,
         -- seed = 1,
         gravity = 1/2,
         controls = tData.defaultControls,
-        handling = tData.defaultHanding
+        handling = tData.defaultHanding,
+
     })
+
     myBoard.newPiece()--]]
-
-
 --[[for x = 1, 10 do
         for y = 1, 10 do
         local myBoard2 = board.create({
@@ -49,10 +62,18 @@ function love.update(dt)
     core.sWidth, core.sHeight = lg.getDimensions()
 
     board.update(dt)
-
+    myBoard.debug({
+        lockProg = myBoard.activePiece.lockProgress,
+        resetRotations = myBoard.activePiece.resetRotations,
+        arrProg = myBoard.activePiece.arrProg,
+        dasProg = myBoard.activePiece.dasProg,
+        rotation = myBoard.activePiece.rotation,
+        x = myBoard.activePiece.pos.x,
+        y = myBoard.activePiece.pos.y,
+    })
     --- temp stuff for testing
-    myBoard.scale = core.sHeight/board.canvasSize.y
-    myBoard.pos = {x = core.sWidth/2, y = core.sHeight/2}
+    --myBoard.scale = core.sHeight/board.canvasSize.y
+    --myBoard.pos = {x = core.sWidth/2, y = core.sHeight/2}
 end
 
 function love.keypressed(input)

@@ -102,6 +102,17 @@ function core.strToTable(str)
     return output
 end
 
+function core.find(tab, value) -- finds the first instance of a value in a table
+    if core.isArray(tab) then
+        for i, item in ipairs(tab) do
+            if item == value then
+                return i
+            end
+        end
+    end
+    return false
+end
+
 
 function core.alphabetize(allText)
     table.sort(allText, function(a, b) return a:upper() < b:upper() end)

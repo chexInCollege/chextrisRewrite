@@ -54,12 +54,25 @@ function controller.create(name, attributes)
     function newController.isDown(translatedControl)
         for _, board in pairs(board.members) do
             if board.controller == name then
-                local input = core.reverseLookup(board.controls, translatedControl)
-
                 if name == "keyboard" then
+                    local tControls = core.clone(board.controls)
+                    local input
+
+                    repeat
+                        input = core.reverseLookup(tControls, translatedControl)
+                        tControls[input] = nil
+                    until input:sub(1,2) ~= "B_"
                     return love.keyboard.isDown(input)
                 else
-                    --- other controller
+                    local tControls = core.clone(board.controls)
+                    local input
+
+                    repeat
+                        input = core.reverseLookup(tControls, translatedControl)
+                        tControls[input] = nil
+                    until input:sub(1,2) == "B_"
+
+
                 end
             end
         end

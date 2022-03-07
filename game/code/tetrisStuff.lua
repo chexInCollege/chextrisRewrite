@@ -12,6 +12,16 @@ tData.defaultControls = {
 
     lshift = "hold",
 
+    B_dpup = "hardDrop",
+    B_dpleft = "left",
+    B_dpright = "right",
+    B_dpdown = "softDrop",
+
+    B_a = "rotateCCW",
+    B_b = "rotateCW",
+    B_y = "rotate180",
+    B_leftshoulder = "hold",
+    B_rightshoulder = "hold",
 }
 
 tData.defaultHandling = {

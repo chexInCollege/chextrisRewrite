@@ -60,7 +60,7 @@ end
 
 function love.update(dt)
     core.sWidth, core.sHeight = lg.getDimensions()
-
+    myBoard.controller = controller.inputs["GP-1"] and controller.inputs["GP-1"] or myBoard.controller
     board.update(dt)
     myBoard.debug({
         lockProg = myBoard.activePiece.lockProgress,
@@ -84,16 +84,46 @@ function love.keyreleased(input)
     controller.inputs.keyboard.released(input)
 end
 
+
+
+core.joystickCount = 0
+core.joySlots = {false, false, false, false, false, false, false, false}
 function love.joystickadded(joystick)
-    core.kbInput = controller.create("GP-" .. joystick:getName())
-    print(joystick:getName())
+    local success, err = pcall(function()
+        local freeSlot = core.find(core.joySlots, false)
+        freeSlot = freeSlot and freeSlot or #core.joySlots+1
+
+        core.joySlots[freeSlot] = joystick
+        core.joystickCount = core.joystickCount + 1
+        core.kbInput = controller.create("GP-" .. tostring(freeSlot))
+        print(joystick:getName() .. ": " .. tostring(freeSlot))
+    end)
+
+    if not success then
+        print("Issue adding controller: " .. tostring(err))
+    end
 end
 
 
 function love.joystickremoved(joystick)
-    controller.inputs["GP-" .. joystick:getName()].release()
+    local success, err = pcall(function()
+        local joystickID = core.reverseLookup(core.joySlots, joystick)
+        core.joySlots[joystickID] = false
+        core.joystickCount = core.joystickCount - 1
+        controller.inputs["GP-" .. tostring(joystickID)].release()
+        print(joystick:getName() .. " disconnected (" .. tostring(joystickID) .. ")")
+    end)
+
+    if not success then
+        print("Issue removing controller: " .. tostring(err))
+    end
 end
 
 function love.gamepadpressed(joystick, button)
-    print(joystick:getName(), button)
+    local success, err = pcall(controller.inputs["GP-"..tostring(core.reverseLookup(core.joySlots, joystick))].pressed, "B" .. button)
+    if not success then
+        print("Error pressing button on GP-"..tostring(core.reverseLookup(core.joySlots, joystick)) .. ": " .. tostring(err))
+    else
+        print("GP-" .. tostring(core.reverseLookup(core.joySlots, joystick)), button)
+    end
 end
